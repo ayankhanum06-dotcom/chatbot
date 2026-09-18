@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEN AI • Next-Gen Groq Chatbot with Video Avatar & CapCut Effects</title>
+    <meta name="description" content="Futuristic AI chatbot built with Flask and Groq API, featuring animated video avatar, colorful dynamic backgrounds, multi-voice ambient audio, and CapCut-style move-up kinetic captions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-theme="cyberpunk">
+    <!-- Dynamic Animated Background Canvas -->
+    <div class="ambient-bg-wrapper">
+        <canvas id="particleCanvas" class="particle-canvas"></canvas>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="gradient-mesh-overlay"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-layout">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav glass-panel">
+            <div class="brand-group">
+                <div class="brand-logo-ring">
+                    <i class="fa-solid fa-bolt-lightning brand-icon"></i>
+                </div>
+                <div>
+                    <h1 class="brand-title">JEN <span class="gradient-text">AI</span></h1>
+                    <span class="brand-badge"><i class="fa-solid fa-microchip"></i> GROQ LPUs</span>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="nav-controls">
+                <!-- Theme Selector -->
+                <div class="control-dropdown-wrap">
+                    <button id="themeToggleBtn" class="glass-btn btn-compact" title="Change Background Style">
+                        <i class="fa-solid fa-palette"></i>
+                        <span class="btn-label">Theme</span>
+                    </button>
+                    <div id="themeMenu" class="dropdown-menu glass-panel hidden">
+                        <div class="menu-header">Colorful Backgrounds</div>
+                        <button class="theme-opt active" data-theme="cyberpunk">
+                            <span class="theme-dot cyberpunk"></span> Cyberpunk Neon
+                        </button>
+                        <button class="theme-opt" data-theme="aurora">
+                            <span class="theme-dot aurora"></span> Cosmic Aurora
+                        </button>
+                        <button class="theme-opt" data-theme="synthwave">
+                            <span class="theme-dot synthwave"></span> Sunset Synthwave
+                        </button>
+                        <button class="theme-opt" data-theme="ocean">
+                            <span class="theme-dot ocean"></span> Electric Ocean
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CapCut Effects Menu -->
+                <div class="control-dropdown-wrap">
+                    <button id="capcutToggleBtn" class="glass-btn btn-compact" title="CapCut Animation Settings">
+                        <i class="fa-solid fa-wand-magic-sparkles text-glow"></i>
+                        <span class="btn-label">CapCut FX</span>
+                    </button>
+                    <div id="capcutMenu" class="dropdown-menu glass-panel hidden">
+                        <div class="menu-header">CapCut Motion Style</div>
+                        <button class="fx-opt active" data-effect="move-up">
+                            <i class="fa-solid fa-arrow-up-long"></i> Move Up (Kinetic)
+                        </button>
+                        <button class="fx-opt" data-effect="bounce-up">
+                            <i class="fa-solid fa-arrows-up-down"></i> Pop & Rise
+                        </button>
+                        <button class="fx-opt" data-effect="karaoke-rise">
+                            <i class="fa-solid fa-music"></i> Karaoke Flow
+                        </button>
+                        <div class="menu-divider"></div>
+                        <label class="switch-row">
+                            <span>Kinetic Subtitles</span>
+                            <input type="checkbox" id="toggleCaptions" checked>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Voice & Background Audio Menu -->
+                <div class="control-dropdown-wrap">
+                    <button id="audioMenuBtn" class="glass-btn btn-compact" title="Voice & Background Audio Settings">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span class="btn-label">Audio & Voice</span>
+                    </button>
+                    <div id="audioMenu" class="dropdown-menu glass-panel audio-panel hidden">
+                        <div class="menu-header"><i class="fa-solid fa-volume-high"></i> Voice Synthesis</div>
+                        <div class="field-group">
+                            <label for="voiceSelect">Persona Voice</label>
+                            <select id="voiceSelect" class="glass-select">
+                                <option value="">Loading voices...</option>
+                            </select>
+                        </div>
+                        <div class="slider-row">
+                            <label>Pitch: <span id="pitchVal">1.0</span></label>
+                            <input type="range" id="pitchSlider" min="0.5" max="1.8" step="0.1" value="1.0">
+                        </div>
+                        <div class="slider-row">
+                            <label>Speed: <span id="rateVal">1.05</span></label>
+                            <input type="range" id="rateSlider" min="0.7" max="1.5" step="0.05" value="1.05">
+                        </div>
+
+                        <div class="menu-divider"></div>
+
+                        <div class="menu-header"><i class="fa-solid fa-wave-square"></i> Background Ambiance</div>
+                        <div class="field-group">
+                            <label for="bgmSelect">Background Soundscape</label>
+                            <select id="bgmSelect" class="glass-select">
+                                <option value="off">Off (Silent)</option>
+                                <option value="lofi" selected>Chill Lo-Fi Ambient</option>
+                                <option value="space">Cosmic Deep Drone</option>
+                                <option value="rain">Cyberpunk Rainfall</option>
+                            </select>
+                        </div>
+                        <div class="slider-row">
+                            <label>Ambient Vol: <span id="bgmVolVal">30%</span></label>
+                            <input type="range" id="bgmVolSlider" min="0" max="1" step="0.05" value="0.3">
+                        </div>
+                        <button id="toggleBgmBtn" class="glass-btn btn-small w-100">
+                            <i class="fa-solid fa-play"></i> Start Background Audio
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Model Selector -->
+                <select id="modelSelect" class="glass-select model-picker" title="Groq Model">
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Versatile)</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Instant)</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B (32k)</option>
+                    <option value="gemma2-9b-it">Gemma 2 9B</option>
+                </select>
+
+                <!-- Settings / Key Status -->
+                <button id="openSettingsBtn" class="glass-btn btn-icon" title="API Key & Settings">
+                    <i class="fa-solid fa-gear"></i>
+                    <span id="keyStatusBadge" class="status-indicator-dot warning" title="Check API Key"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="main-stage">
+            <!-- Left Side: Interactive Video Avatar & CapCut Caption Stage -->
+            <section class="avatar-stage glass-panel">
+                <div class="stage-header">
+                    <div class="stage-status">
+                        <span class="live-dot pulse"></span>
+                        <span id="aiStateLabel">AI Ready</span>
+                    </div>
+                    <div class="stage-actions">
+                        <button id="videoModeBtn" class="icon-btn" title="Toggle Visualizer Mode">
+                            <i class="fa-solid fa-clapperboard"></i>
+                        </button>
+                        <button id="muteAudioBtn" class="icon-btn" title="Mute/Unmute Speech">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Avatar Visualizer Container -->
+                <div class="avatar-viewport">
+                    <!-- High-tech animated AI Video Visualizer -->
+                    <div class="video-avatar-wrapper" id="videoAvatarWrapper">
+                        <video id="aiVideoPlayer" class="ai-video" autoplay loop muted playsinline>
+                            <!-- Animated video loop fallback source -->
+                        </video>
+                        <canvas id="avatarCanvas" class="avatar-canvas"></canvas>
+                        
+                        <!-- Reactive Holographic Halo -->
+                        <div class="holo-ring holo-ring-1"></div>
+                        <div class="holo-ring holo-ring-2"></div>
+                        <div class="holo-ring holo-ring-3"></div>
+
+                        <!-- Audio Wave Bars Ring -->
+                        <div class="wave-rings-container" id="waveRings"></div>
+                    </div>
+
+                    <!-- CapCut Dynamic "Move Up" Live Subtitle Bar -->
+                    <div class="capcut-caption-stage" id="capcutCaptionStage">
+                        <div class="capcut-badge">
+                            <i class="fa-solid fa-bolt"></i> CAPCUT MOVE-UP FX
+                        </div>
+                        <div class="capcut-kinetic-box" id="capcutBox">
+                            <span class="capcut-placeholder">Jen AI is ready to speak with you...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Avatar Audio Controls -->
+                <div class="stage-footer">
+                    <div class="voice-wave-meter">
+                        <span class="bar bar-1"></span>
+                        <span class="bar bar-2"></span>
+                        <span class="bar bar-3"></span>
+                        <span class="bar bar-4"></span>
+                        <span class="bar bar-5"></span>
+                        <span class="bar bar-6"></span>
+                    </div>
+                    <div class="current-voice-tag">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                        <span id="activeVoiceName">Synthesizer Voice</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Chat Experience with CapCut Move-Up Bubbles -->
+            <section class="chat-stage glass-panel">
+                <!-- Chat Messages Scrollable Stream -->
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Welcome Card -->
+                    <div class="message-card bot-card move-up">
+                        <div class="avatar-badge">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta">
+                                <span class="sender-name">JEN AI</span>
+                                <span class="time-stamp">Just now</span>
+                            </div>
+                            <div class="card-body markdown-body">
+                                <p><strong>Welcome! I am Jen AI</strong>, your ultra-responsive companion powered by <strong>Groq LPUs</strong>.</p>
+                                <ul class="welcome-checklist">
+                                    <li><i class="fa-solid fa-film text-cyan"></i> <strong>Animated Video Avatar</strong> with reactive visualizer</li>
+                                    <li><i class="fa-solid fa-palette text-pink"></i> <strong>Colorful Dynamic Backgrounds</strong> (click Theme above)</li>
+                                    <li><i class="fa-solid fa-headphones text-purple"></i> <strong>Multiple Voices & Ambient Lo-Fi</strong> in background</li>
+                                    <li><i class="fa-solid fa-arrow-trend-up text-amber"></i> <strong>CapCut "Move-Up" Kinetic Animations</strong> on text & speech</li>
+                                </ul>
+                                <p class="small-tip">Ask me any question, write code, brainstorm video scripts, or turn on the microphone to speak!</p>
+                            </div>
+                            <div class="card-actions">
+                                <button class="action-btn speak-msg-btn" title="Read Aloud">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <button class="action-btn copy-msg-btn" title="Copy Message">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Prompt Chips -->
+                <div class="quick-prompts-row" id="quickPromptsRow">
+                    <button class="chip-btn" data-prompt="Write a viral CapCut video script about futuristic AI technology with scene transitions.">
+                        🎬 CapCut Video Script
+                    </button>
+                    <button class="chip-btn" data-prompt="Explain quantum computing in 3 simple bullet points with analogies.">
+                        ⚛️ Quantum Computing
+                    </button>
+                    <button class="chip-btn" data-prompt="Write a vibrant cyber-punk story excerpt with high emotion.">
+                        🌆 Cyberpunk Story
+                    </button>
+                    <button class="chip-btn" data-prompt="Give me 5 motivational affirmations for high productivity today.">
+                        ⚡ Daily Affirmations
+                    </button>
+                </div>
+
+                <!-- Chat Input Box -->
+                <div class="chat-input-wrapper">
+                    <form id="chatForm" class="chat-form">
+                        <!-- Mic button for voice-to-text -->
+                        <button type="button" id="micBtn" class="input-icon-btn mic-btn" title="Speak to Jen AI (Speech Recognition)">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+
+                        <textarea 
+                            id="messageInput" 
+                            class="chat-textarea" 
+                            placeholder="Message Jen AI... (Shift+Enter for new line)" 
+                            rows="1"
+                            required
+                        ></textarea>
+
+                        <!-- CapCut Fast Move-Up FX Toggle -->
+                        <button type="button" id="kineticFxToggle" class="input-icon-btn fx-badge-btn active" title="CapCut Move Up Effect Active">
+                            <i class="fa-solid fa-bolt"></i>
+                        </button>
+
+                        <!-- Send Button -->
+                        <button type="submit" id="sendBtn" class="send-btn" title="Send Message">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <div class="input-subtext">
+                        <span>Groq LPUs • Streaming Mode Active • Web Speech API</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings & API Key Modal -->
+    <div id="settingsModal" class="modal-backdrop hidden">
+        <div class="modal-card glass-panel">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-sliders"></i> Configuration & Settings</h2>
+                <button id="closeSettingsBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label for="apiKeyInput">
+                        <strong>Groq API Key</strong>
+                        <span class="sub-label">Stored safely in your <code>.env</code> file (`GROQ_API_KEY`)</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="password" id="apiKeyInput" class="glass-input" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxx">
+                        <button id="saveKeyBtn" class="glass-btn btn-accent">Save to .env</button>
+                    </div>
+                    <p class="field-hint">
+                        Don't have a key? Get one for free at <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">console.groq.com/keys</a>.
+                    </p>
+                    <div id="keySaveResult" class="notice-box hidden"></div>
+                </div>
+
+                <div class="setting-item">
+                    <label for="systemPromptInput">
+                        <strong>Custom System Persona</strong>
+                    </label>
+                    <textarea id="systemPromptInput" class="glass-textarea" rows="3">You are JEN AI, an intelligent, stylish, and futuristic AI companion. You provide engaging, clear, concise, and helpful answers with a warm, energetic voice.</textarea>
+                </div>
+
+                <div class="setting-item">
+                    <label>
+                        <strong>CapCut Motion Transition Speed</strong>
+                    </label>
+                    <div class="slider-row">
+                        <input type="range" id="fxSpeedSlider" min="0.3" max="1.5" step="0.1" value="0.8">
+                        <span id="fxSpeedVal">0.8s</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="clearChatBtn" class="glass-btn btn-danger">
+                    <i class="fa-solid fa-trash-can"></i> Clear Chat History
+                </button>
+                <button id="closeSettingsBtn2" class="glass-btn btn-secondary">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Audio Elements for UI feedback -->
+    <audio id="ambientAudioPlayer" loop preload="none"></audio>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/static/js/audio.js"></script>
+    <script src="/static/js/visualizer.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
